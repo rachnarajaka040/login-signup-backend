@@ -1,7 +1,36 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
+const multer=require("multer");
 
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, "uploads");
+    },
+    filename: function (req, file, cb) {
+      const extension = file.originalname.split('.').pop(); // Extracting the original file extension
+      cb(null, `${file.originalname}-${Date.now()}.${extension}`);
+    }
+  })
+}).single("user_file");
+
+
+
+router.post("/upload",upload,async(req,res)=>{
+  try {
+    const imagePath=req.file.path;
+    const newUser=new User({
+      image:imagePath
+    });
+    await newUser.save();
+    res.send("file upload");
+  } catch (error) {
+    console.error("Error uploading file and creating user:", error);
+    res.status(500).send("Error uploading file and creating user.");
+  }
+ 
+})
 // POST /api/rachna/character
 router.post("/", async (req, res) => {
   try {
@@ -58,5 +87,7 @@ router.put("/:id", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+
 
 module.exports = router;
