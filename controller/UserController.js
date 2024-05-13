@@ -17,27 +17,47 @@ const upload = multer({
 
 
 
-router.post("/upload",upload,async(req,res)=>{
-  try {
-    const imagePath=req.file.path;
-    const newUser=new User({
-      image:imagePath
-    });
-    await newUser.save();
-    res.send("file upload");
-  } catch (error) {
-    console.error("Error uploading file and creating user:", error);
-    res.status(500).send("Error uploading file and creating user.");
-  }
+// router.post("/upload",upload,async(req,res)=>{
+//   try {
+//     const imagePath=req.file.path;
+//     const newUser=new User({
+//       image:imagePath
+//     });
+//     await newUser.save();
+//     res.send("file upload");
+//   } catch (error) {
+//     console.error("Error uploading file and creating user:", error);
+//     res.status(500).send("Error uploading file and creating user.");
+//   }
  
-})
+// })
+
+
+router.post("/upload", upload, async (req, res) => {
+  try {
+    // Upload file and create user
+    // ...
+
+    res.send("File uploaded and user created successfully.");
+  } catch (error) {
+    if (error.code === 11000 && error.keyPattern.email === 1) {
+      // Duplicate email error
+      res.status(400).send("Email already exists.");
+    } else {
+      console.error("Error uploading file and creating user:", error);
+      res.status(500).send("Error uploading file and creating user.");
+    }
+  }
+});
+
 // POST /api/rachna/character
 router.post("/", async (req, res) => {
   try {
     //console.log("apifhghghh ");
     const userData = req.body;
     const newUser = await User.create(userData);
-    res.status(201).json(newUser);
+    const token=newUser.generateToken();
+    res.status(201).json({user:newUser,token});
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error" });

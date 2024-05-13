@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require('express');
 const connect = require('./config/db');
 const characterController = require('./controller/UserController');
@@ -12,7 +13,7 @@ app.use(express.json());
 // Mount the controller
 app.use('/api/rachna/character', characterController);
 
-const PORT = 3000;
+const PORT = 4000;
 app.listen(PORT, async () => {
     try {
         await connect();
